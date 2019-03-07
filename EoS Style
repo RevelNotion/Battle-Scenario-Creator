@@ -1,0 +1,400 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+
+public class BattleScenarioCreator : MonoBehaviour {
+
+	//Assign characters to numbers: 1-16, create player categories: Player, PlayerAssist, Opponent, OpponentAssist
+
+	public enum MenuPhase{
+		MODESELECT,
+		PLAYERSELECT,
+		PLAYERASSISTSELECT,
+		OPPONENTSELECT,
+		OPPONENTASSISTSELECT,
+		FIELDSELECT,
+		MUSICSELECT,
+		SELECTIONCOMPLETE
+	}
+
+	public MenuPhase currentPhase;
+
+	public GameObject ModeMenu;
+	public GameObject CharacterDisplay;
+	public GameObject PlayerMenu;
+	public GameObject PlayerAssistMenu;
+	public GameObject OpponentMenu;
+	public GameObject OpponentAssistMenu;
+
+	public GameObject FieldMenu;
+	public GameObject FieldSelection1;
+	public GameObject FieldSelection2;
+	public GameObject FieldSelection3;
+	public GameObject FieldSelection4;
+
+	public GameObject MusicMenu;
+	public GameObject TrackSelection1;
+	public GameObject TrackSelection2;
+	public GameObject TrackSelection3;
+	public GameObject TrackSelection4;
+
+	public GameObject CompleteMenu;
+
+	public bool battleMode;
+	public bool spectatorMode;
+	public bool is1v1;
+	public bool is2v2;
+
+	public int playerID;
+	public int playerAssistID;
+	public int opponentID;
+	public int opponentAssistID;
+
+	public int levelID;
+	public bool levelSelected;
+	public int trackID;
+	public bool trackSelected;
+
+	public Vector3 menuPos;
+	public Vector3 menuOffPos;
+	public Vector3 tabPos;
+	public Vector3 tabOffPos;
+	public bool autoPlayOn;
+	public bool autoSelectOn;
+	public bool playerDisplayed;
+	public bool playerAssistDisplayed;
+	public bool opponentDisplayed;
+	public bool opponentAssistDisplayed;
+
+	public string NextSceneName;
+
+	// Use this for initialization
+	void Start () {
+		currentPhase = MenuPhase.MODESELECT;
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		MenuPhaseFlow ();
+		GetFieldSelections ();
+		GetTrackSelections ();
+		MenuPhaseManager ();
+		AutoPlayShuffler ();
+		AutoSelectShuffler ();
+		AntiCloneManager ();
+		FieldChanger ();
+		Debug.Log (currentPhase);
+	}
+                            //Grabs GameObjects with specific names in the Unity project hierarchy.
+	void GetFieldSelections(){
+		if (GameObject.Find ("FieldMenu") != null) {
+			FieldSelection1 = GameObject.Find ("LevelSelection1");
+			FieldSelection2 = GameObject.Find ("LevelSelection2");
+			FieldSelection3 = GameObject.Find ("LevelSelection3");
+			FieldSelection4 = GameObject.Find ("LevelSelection4");
+		}
+	}
+
+	void GetTrackSelections(){
+		if (GameObject.Find ("MusicMenu") != null) {
+			TrackSelection1 = GameObject.Find ("SongSelection1");
+			TrackSelection2 = GameObject.Find ("SongSelection2");
+			TrackSelection3 = GameObject.Find ("SongSelection3");
+			TrackSelection4 = GameObject.Find ("SongSelection4");
+		}
+	}
+
+	                        //Automatically shuffles songs depending on the character selected.
+	void AutoPlayShuffler(){
+		if (autoPlayOn == true) {
+			if (playerID > 0 && playerID < 5) {
+				trackID = Random.Range (1, 5);
+			} else if (playerID > 4 && playerID < 9) {
+				trackID = Random.Range (5, 9);
+			} else if (playerID > 8 && playerID < 13) {
+				trackID = Random.Range (9, 13);
+			} else if (playerID > 12 && playerID < 17) {
+				trackID = Random.Range (13, 17);
+			}
+		}
+	}
+
+                            	//Automatically shuffles stages depending on the character selected.
+	void AutoSelectShuffler(){
+		if (autoSelectOn == true) {
+			if (playerID > 0 && playerID < 5) {
+				levelID = Random.Range (1, 5);
+			} else if (playerID > 4 && playerID < 9) {
+				levelID = Random.Range (5, 9);
+			} else if (playerID > 8 && playerID < 13) {
+				levelID = Random.Range (9, 13);
+			} else if (playerID > 12 && playerID < 17) {
+				levelID = Random.Range (13, 17);
+			}
+		}
+	}
+
+	                        //Create a function that controls what menus are available, depending on the MenuPhase.
+	void MenuPhaseManager(){
+		if (currentPhase == MenuPhase.MODESELECT) {
+			ModeMenu.transform.position = menuPos;
+			CharacterDisplay.transform.position = menuOffPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.PLAYERSELECT) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuPos;
+			PlayerMenu.transform.position = menuPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.PLAYERASSISTSELECT) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.OPPONENTSELECT) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.OPPONENTASSISTSELECT) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.FIELDSELECT) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuOffPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.MUSICSELECT) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuOffPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuPos;
+			CompleteMenu.transform.position = menuOffPos;
+		}
+		if (currentPhase == MenuPhase.SELECTIONCOMPLETE) {
+			ModeMenu.transform.position = menuOffPos;
+			CharacterDisplay.transform.position = menuPos;
+			PlayerMenu.transform.position = menuOffPos;
+			PlayerAssistMenu.transform.position = menuOffPos;
+			OpponentMenu.transform.position = menuOffPos;
+			OpponentAssistMenu.transform.position = menuOffPos;
+			FieldMenu.transform.position = menuOffPos;
+			MusicMenu.transform.position = menuOffPos;
+			CompleteMenu.transform.position = menuPos;
+		}
+	}
+                        //Cycles through Menu Phases based on selections made.
+	void MenuPhaseFlow(){
+		if (is1v1 == true && playerID != 0) {
+			currentPhase = MenuPhase.OPPONENTSELECT;
+		}
+		if (is1v1 == true && opponentID != 0) {
+			currentPhase = MenuPhase.FIELDSELECT;
+		}
+		if (is1v1 == true && opponentID != 0 && levelSelected == true) {
+			currentPhase = MenuPhase.MUSICSELECT;
+		}
+		if (is1v1 == true && opponentID != 0 && levelSelected == true && trackSelected == true) {
+			currentPhase = MenuPhase.SELECTIONCOMPLETE;
+		}
+		if (is2v2 == true && playerID != 0) {
+			currentPhase = MenuPhase.PLAYERASSISTSELECT;
+		}
+		if (is2v2 == true && playerAssistID != 0) {
+			currentPhase = MenuPhase.OPPONENTSELECT;
+		}
+		if (is2v2 == true && opponentID != 0) {
+			currentPhase = MenuPhase.OPPONENTASSISTSELECT;
+		}
+		if (is2v2 == true && opponentAssistID != 0) {
+			currentPhase = MenuPhase.FIELDSELECT;
+		}
+		if (is2v2 == true && opponentAssistID != 0 && levelSelected == true) {
+			currentPhase = MenuPhase.MUSICSELECT;
+		}
+		if (is2v2 == true && opponentAssistID != 0 && levelSelected == true && trackSelected == true) {
+			currentPhase = MenuPhase.SELECTIONCOMPLETE;
+		}
+	}
+
+	public void BattleModeSelected(){
+		battleMode = true;
+		spectatorMode = false;
+	}
+
+	public void SpectatorModeSelected(){
+		spectatorMode = true;
+		battleMode = false;
+	}
+
+	public void Select1v1(){
+		is1v1 = true;
+		is2v2 = false;
+		currentPhase = MenuPhase.PLAYERSELECT;
+	}
+
+	public void Select2v2(){
+		is2v2 = true;
+		is1v1 = false;
+		currentPhase = MenuPhase.PLAYERSELECT;
+	}
+                               //Allows for tabbing between various levels by changing UI position.
+	public void FieldSelector1(){
+		FieldSelection1.transform.position = tabPos;
+		FieldSelection2.transform.position = tabOffPos;
+		FieldSelection3.transform.position = tabOffPos;
+		FieldSelection4.transform.position = tabOffPos;
+	}
+
+	public void FieldSelector2(){
+		FieldSelection1.transform.position = tabOffPos;
+		FieldSelection2.transform.position = tabPos;
+		FieldSelection3.transform.position = tabOffPos;
+		FieldSelection4.transform.position = tabOffPos;
+	}
+                               //Allows for tabbing between various songs by changing UI position.
+	public void TrackSelector1(){
+		TrackSelection1.transform.position = tabPos;
+		TrackSelection2.transform.position = tabOffPos;
+		TrackSelection3.transform.position = tabOffPos;
+		TrackSelection4.transform.position = tabOffPos;
+	}
+
+	public void TrackSelector2(){
+		TrackSelection1.transform.position = tabOffPos;
+		TrackSelection2.transform.position = tabPos;
+		TrackSelection3.transform.position = tabOffPos;
+		TrackSelection4.transform.position = tabOffPos;
+	}
+                           //Cycles backwards as less selections are made.
+	public void BackButton(){
+		if (currentPhase == MenuPhase.SELECTIONCOMPLETE) {
+			trackSelected = false;
+			currentPhase = MenuPhase.MUSICSELECT;
+		} else if (currentPhase == MenuPhase.MUSICSELECT) {
+			levelSelected = false;
+			currentPhase = MenuPhase.FIELDSELECT;
+		} else if (currentPhase == MenuPhase.FIELDSELECT && is2v2 == true) {
+			opponentAssistID = 0;
+			opponentAssistDisplayed = false;
+			currentPhase = MenuPhase.OPPONENTASSISTSELECT;
+		} else if (currentPhase == MenuPhase.FIELDSELECT && is1v1 == true) {
+			opponentID = 0;
+			opponentDisplayed = false;
+			currentPhase = MenuPhase.OPPONENTSELECT;
+		} else if (currentPhase == MenuPhase.OPPONENTASSISTSELECT) {
+			opponentID = 0;
+			opponentDisplayed = false;
+			currentPhase = MenuPhase.OPPONENTSELECT;
+		} else if (currentPhase == MenuPhase.OPPONENTSELECT && is2v2 == true) {
+			playerAssistID = 0;
+			playerAssistDisplayed = false;
+			currentPhase = MenuPhase.PLAYERASSISTSELECT;
+		} else if (currentPhase == MenuPhase.OPPONENTSELECT && is1v1 == true) {
+			playerID = 0;
+			playerDisplayed = false;
+			currentPhase = MenuPhase.PLAYERSELECT;
+		} else if (currentPhase == MenuPhase.PLAYERASSISTSELECT) {
+			playerID = 0;
+			playerDisplayed = false;
+			currentPhase = MenuPhase.PLAYERSELECT;
+		} else if (currentPhase == MenuPhase.PLAYERSELECT) {
+			battleMode = false;
+			spectatorMode = false;
+			is1v1 = false;
+			is2v2 = false;
+			currentPhase = MenuPhase.MODESELECT;
+		} else if (currentPhase == MenuPhase.MODESELECT) {
+			Application.LoadLevel("ModeSelectMenu");
+		}
+	}
+                          //Prevents multiples of the same character from being selected.
+	void AntiCloneManager(){
+		if(playerAssistID == playerID){
+			playerAssistID = 0;
+		} else if (opponentID == playerID) {
+			opponentID = 0;
+		} else if (opponentAssistID == playerID) {
+			opponentAssistID = 0;
+		}
+		if(playerID == playerAssistID){
+			playerID = 0;
+		} else if(opponentID == playerAssistID){
+			opponentID = 0;
+		} else if(opponentAssistID == playerAssistID){
+			opponentAssistID = 0;
+		}
+		if (opponentAssistID == opponentID) {
+			opponentAssistID = 0;
+		}
+	}
+
+	void FieldChanger(){
+		if (levelID == 1) {
+			NextSceneName = "Coastal Streets";
+		}
+		if (levelID == 9) {
+			NextSceneName = "Control Room";
+		}
+	}
+
+	public void ConfirmField(){
+		if (currentPhase == MenuPhase.FIELDSELECT && levelID != 0) {
+			levelSelected = true;
+		}
+	}
+
+	public void ConfirmTrack(){
+		if (currentPhase == MenuPhase.MUSICSELECT && trackID != 0) {
+			trackSelected = true;
+		}
+	}
+                                //Finishes the final Menu Phase and starts the level with chosen conditions.
+	public void ConfirmSequence(){
+		if (currentPhase == MenuPhase.SELECTIONCOMPLETE && levelID != 0 && trackID != 0) {
+			Application.LoadLevel(NextSceneName);
+		}
+	}
+}
